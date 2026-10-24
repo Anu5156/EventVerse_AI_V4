@@ -92,7 +92,7 @@ The end-to-end development workflow followed standard engineering best practices
 
 ### 5.1 Public Repository & Code Artifacts
 - **Repository URL**: [https://github.com/Anu5156/EventVerse_AI_V4](https://github.com/Anu5156/EventVerse_AI_V4)
-- **Codebase**: Complete production-ready source code located in [`public/`](public/).
+- **Codebase**: Complete production-ready source code located at the root of the repository ([`index.html`](index.html), [`theme.css`](theme.css), [`app.js`](app.js)).
 
 ### 5.2 Chosen Vertical & Persona
 - **Chosen Vertical**: *Intelligent Event Management & Crisis-Resilient Planning*
@@ -211,22 +211,22 @@ graph TD
 ## 9. Quickstart & Local Execution
 
 ### Option 1: Direct File Launch (No setup required)
-Open [`public/index.html`](public/index.html) in any modern browser:
+Open [`index.html`](index.html) in any modern browser:
 ```powershell
-Start-Process .\public\index.html
+Start-Process .\index.html
 ```
 
 ### Option 2: Local Server with Auto-Launch (npm)
 ```bash
 npm start
 ```
-*Automatically launches your default browser at `http://localhost:8000/public/`.*
+*Automatically launches your default browser at `http://localhost:8000/`.*
 
 ### Option 3: Standard Python Server
 ```bash
 python -m http.server 8000
 ```
-Then visit: **[http://localhost:8000/public/](http://localhost:8000/public/)**
+Then visit: **[http://localhost:8000/](http://localhost:8000/)**
 
 ---
 
