@@ -4,7 +4,7 @@
   "private": true,
   "description": "Portable EventVerse AI V4 event planning dashboard",
   "scripts": {
-    "start": "start http://localhost:8000/public/ && python -m http.server 8000",
-    "open": "start public/index.html"
+    "start": "start http://localhost:8000/ && python -m http.server 8000",
+    "open": "start index.html"
   }
 }
