@@ -16,7 +16,7 @@
 - [3. Challenge Expectations](#3-challenge-expectations)
 - [4. How to Work on Your Project](#4-how-to-work-on-your-project)
 - [5. What to Submit](#5-what-to-submit)
-  - [5.1 Public Repository & Code Artifacts](#51-public-repository--code-artifacts)
+  - [5.1 Public Repository & Project Structure](#51-public-repository--project-structure)
   - [5.2 Chosen Vertical & Persona](#52-chosen-vertical--persona)
   - [5.3 Approach and Technical Logic](#53-approach-and-technical-logic)
   - [5.4 How the Solution Works](#54-how-the-solution-works)
@@ -90,9 +90,20 @@ The end-to-end development workflow followed standard engineering best practices
 
 > 📘 **Submission Guide:** [Official Submission Documentation](https://docs.google.com/document/d/1yw0RLAkfp5TBYajwMRHaxZFc6zOgElKkj2Z-B9HxrWk/edit?tab=t.0#heading=h.sbdvih9v5ho)
 
-### 5.1 Public Repository & Code Artifacts
+### 5.1 Public Repository & Project Structure
 - **Repository URL**: [https://github.com/Anu5156/EventVerse_AI_V4](https://github.com/Anu5156/EventVerse_AI_V4)
-- **Codebase**: Complete production-ready source code located at the root of the repository ([`index.html`](index.html), [`theme.css`](theme.css), [`app.js`](app.js)).
+- **Directory Layout**:
+  ```text
+  EventVerse_AI_V4/
+  ├── .gitignore          # Git exclusion rules
+  ├── .nojekyll           # Bypasses Jekyll processing on GitHub Pages
+  ├── README.md           # FAANG-standard evaluation documentation & system spec
+  ├── app.js              # Pure ES6+ state management, calculations & event logic
+  ├── index.html          # Application markup, semantic layout & Google Fonts integration
+  ├── package.json        # Project metadata and local launch scripts
+  └── theme.css           # Glassmorphic design system, typography & responsive CSS
+  ```
+- **Architectural Organization**: All production assets are consolidated at the root level. This eliminates nested subfolder path failures, ensures immediate 1-click deployment compatibility with GitHub Pages / Vercel / Netlify, and allows zero-configuration local execution.
 
 ### 5.2 Chosen Vertical & Persona
 - **Chosen Vertical**: *Intelligent Event Management & Crisis-Resilient Planning*
