@@ -1,12 +1,14 @@
 # ✳ EventVerse AI V4
 ### Intelligent Event Operations & Autonomous Resilience Command Center
 
-[![Production Status](https://img.shields.io/badge/Production%20Status-Operational-00e676?style=for-the-badge&logo=statuspage&logoColor=white)](https://github.com/Anu5156/EventVerse_AI_V4)
+[![Production Deployment](https://img.shields.io/badge/Production%20Deployment-Netlify%20Live-00ad9f?style=for-the-badge&logo=netlify&logoColor=white)](https://dashing-biscotti-fe808f.netlify.app/)
 [![Bundle Footprint](https://img.shields.io/badge/Bundle%20Footprint-%3C%2050%20KB%20(Native)-00b0ff?style=for-the-badge&logo=webassembly&logoColor=white)](https://github.com/Anu5156/EventVerse_AI_V4)
-[![Cold Boot Latency](https://img.shields.io/badge/Cold%20Boot%20TTI-%3C%2080ms-7c4dff?style=for-the-badge&logo=speedtest&logoColor=white)](https://github.com/Anu5156/EventVerse_AI_V4)
+[![Cold Boot Latency](https://img.shields.io/badge/Cold%20Boot%20TTI-%3C%2080ms-7c4dff?style=for-the-badge&logo=speedtest&logoColor=white)](https://dashing-biscotti-fe808f.netlify.app/)
 [![Privacy & Security](https://img.shields.io/badge/Security-Air--Gapped%20%7C%20Zero--Dependency-ff1744?style=for-the-badge&logo=shield&logoColor=white)](https://github.com/Anu5156/EventVerse_AI_V4)
 
 > **EventVerse AI V4** is a zero-dependency, local-first event orchestration command center engineered for high-stakes celebrations (Weddings, Milestone Celebrations, Corporate Galas, and Community Gatherings). It bridges unstructured creative vision and deterministic execution through algorithmic budget allocation, live run-of-show tracking, guest RSVP intelligence, vendor procurement matrices, and real-time **Chaos Mode™** crisis mitigation.
+>
+> 🌐 **Live Production App**: **[https://dashing-biscotti-fe808f.netlify.app/](https://dashing-biscotti-fe808f.netlify.app/)**
 
 ---
 
@@ -283,6 +285,12 @@ $$\text{Deficit Alert Trigger} = \begin{cases} \text{ACTIVE} & \text{if } L_{\te
 ---
 
 ## 9. Quickstart & Verification Runbook
+
+### 🌐 Live Production Deployment
+Directly access and use the live application without any local setup or installation:
+👉 **[https://dashing-biscotti-fe808f.netlify.app/](https://dashing-biscotti-fe808f.netlify.app/)**
+
+---
 
 ### Method 1: Instant Browser Launch (No tools required)
 ```powershell
