@@ -7,6 +7,7 @@
   "scripts": {
     "test": "node tests/run_all.js",
     "test:native": "node --test tests/*.test.js",
+    "lint": "node --check app.js tests/*.test.js tests/run_all.js",
     "start": "start http://localhost:8000/ && python -m http.server 8000",
     "open": "start index.html"
   }
