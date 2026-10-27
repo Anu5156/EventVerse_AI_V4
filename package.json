@@ -5,6 +5,8 @@
   "description": "Portable EventVerse AI V4 event planning dashboard",
   "homepage": "https://dashing-biscotti-fe808f.netlify.app/",
   "scripts": {
+    "test": "node tests/run_all.js",
+    "test:native": "node --test tests/*.test.js",
     "start": "start http://localhost:8000/ && python -m http.server 8000",
     "open": "start index.html"
   }
