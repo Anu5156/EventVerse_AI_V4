@@ -439,7 +439,6 @@ EventVerse_AI_V4/
 ├── theme.css             # Design tokens, typography system, hardware-accelerated styling
 ├── app.js                # State machine, reactive computation loops, 100% JSDoc-typed logic
 ├── package.json          # Project metadata, automated test scripts & dev server targets
-├── .nojekyll             # Static host directive (bypasses Jekyll processing)
 ├── .gitignore            # Git exclusion rules
 ├── tests/                # Automated Test Framework (100% Native Zero-Dependency)
 │   ├── run_all.js        # Comprehensive test runner with summary reporting
