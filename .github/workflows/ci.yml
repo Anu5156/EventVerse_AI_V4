@@ -1,0 +1,29 @@
+name: CI & Quality Assurance
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  verify:
+    name: Automated Verification & Linting
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js Runtime
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Run Syntax & Lint Verification
+        run: npm run lint
+
+      - name: Execute Full Automated Test Suite
+        run: npm test
+
+      - name: Verify Native Test Runner
+        run: npm run test:native
