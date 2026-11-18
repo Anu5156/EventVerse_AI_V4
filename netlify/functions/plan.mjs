@@ -9,23 +9,25 @@ const PREFERRED = [
   "gemini-3.7-flash",
   "gemini-3.6-flash",
   "gemini-3.5-flash",
+  "gemini-3.5-flash-lite",
   "gemini-flash-latest",
   "gemini-2.5-flash",
 ].filter(Boolean);
 let cachedModel = null; // remembered while the function instance stays warm
 
-// Ask the API which models this key can use, and pick the best Flash model available.
-async function discoverModel(key) {
-  const r = await fetch(`${BASE}/models?pageSize=200`, { headers: { "x-goog-api-key": key } });
-  if (!r.ok) return null;
-  const { models = [] } = await r.json();
-  const usable = models
-    .filter((m) => (m.supportedGenerationMethods || []).includes("generateContent"))
-    .map((m) => m.name.replace(/^models\//, ""));
-  for (const p of PREFERRED) if (usable.includes(p)) return p;
-  return usable.find((n) => /flash/.test(n) && !/(lite|live|image|tts|audio|preview|exp)/.test(n))
-      || usable.find((n) => /flash/.test(n))
-      || usable[0] || null;
+// Ask the API which text models this key can use. Returns Flash models first.
+async function discoverModels(key) {
+  try {
+    const r = await fetch(`${BASE}/models?pageSize=200`, { headers: { "x-goog-api-key": key } });
+    if (!r.ok) return [];
+    const { models = [] } = await r.json();
+    const usable = models
+      .filter((m) => (m.supportedGenerationMethods || []).includes("generateContent"))
+      .map((m) => m.name.replace(/^models\//, ""))
+      .filter((n) => /gemini/.test(n) && !/(live|image|tts|audio|embedding|robotics|computer)/.test(n));
+    const flash = usable.filter((n) => /flash/.test(n) && !/(preview|exp)/.test(n));
+    return [...new Set([...flash, ...usable.filter((n) => /flash/.test(n))])].slice(0, 6);
+  } catch { return []; }
 }
 
 const json = (status, body) =>
@@ -146,35 +148,52 @@ export default async (req) => {
     },
   };
 
-  const callModel = (model) =>
+  const callModel = (model, signal) =>
     fetch(`${BASE}/models/${model}:generateContent`, {
       method: "POST",
       headers: { "Content-Type": "application/json", "x-goog-api-key": key },
       body: JSON.stringify(payload),
+      signal,
     });
 
-  try {
-    let model = cachedModel || PREFERRED[0];
-    let r = await callModel(model);
-    if (r.status === 404) {
-      // Model name not available for this key (renamed or retired): find one that is.
-      const found = await discoverModel(key);
-      if (found && found !== model) { model = found; r = await callModel(model); }
+  // Try models in order. If one is busy (503/429/5xx), missing (404) or too slow,
+  // move to the next one, while staying inside Netlify's function time limit.
+  const started = Date.now();
+  const DEADLINE_MS = 24000;
+  const queue = [...new Set([cachedModel, ...PREFERRED].filter(Boolean))];
+  let discovered = false, lastError = "unknown";
+
+  while (queue.length) {
+    const remaining = DEADLINE_MS - (Date.now() - started);
+    if (remaining < 3000) break;
+    const model = queue.shift();
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), Math.min(remaining, 18000));
+    try {
+      const r = await callModel(model, ctrl.signal);
+      if (r.ok) {
+        const data = await r.json();
+        const text = data?.candidates?.[0]?.content?.parts?.map((p) => p.text).join("") || "";
+        const result = JSON.parse(text);
+        cachedModel = model;
+        return json(200, { mode, model, generatedAt: new Date().toISOString(), result });
+      }
+      lastError = `${r.status} from ${model}`;
+      console.error("Gemini error", model, r.status, (await r.text()).slice(0, 500));
+      if (r.status === 400 || r.status === 401 || r.status === 403) break; // key/request problem: retrying won't help
+      if (r.status === 404 && !discovered) {
+        discovered = true;
+        for (const m of await discoverModels(key)) if (!queue.includes(m) && m !== model) queue.push(m);
+      }
+      if (cachedModel === model) cachedModel = null;
+    } catch (err) {
+      lastError = err.name === "AbortError" ? `${model} timed out` : String(err.message || err);
+      console.error("Gemini call failed", model, lastError);
+    } finally {
+      clearTimeout(timer);
     }
-    if (!r.ok) {
-      const detail = await r.text();
-      console.error("Gemini error", model, r.status, detail);
-      return json(502, { error: `AI service error (${r.status}) using ${model}. Please try again.` });
-    }
-    cachedModel = model;
-    const data = await r.json();
-    const text = data?.candidates?.[0]?.content?.parts?.map((p) => p.text).join("") || "";
-    const result = JSON.parse(text);
-    return json(200, { mode, model, generatedAt: new Date().toISOString(), result });
-  } catch (err) {
-    console.error(err);
-    return json(502, { error: "Could not generate a plan right now. Please try again." });
   }
+  return json(502, { error: `The AI is busy right now (${lastError}). Please try again in a moment.` });
 };
 
 export const config = { path: "/api/plan" };
