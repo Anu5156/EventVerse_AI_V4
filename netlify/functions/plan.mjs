@@ -6,12 +6,13 @@ const BASE = "https://generativelanguage.googleapis.com/v1beta";
 // Preferred models, newest first. GEMINI_MODEL (env var) overrides all of them.
 const PREFERRED = [
   process.env.GEMINI_MODEL,
-  "gemini-3.7-flash",
-  "gemini-3.6-flash",
-  "gemini-3.5-flash",
+  // Fast "lite" models first: they answer in seconds and are rarely overloaded on free keys.
   "gemini-3.5-flash-lite",
+  "gemini-3.1-flash-lite",
+  "gemini-3.5-flash",
+  "gemini-3.7-flash",
+  "gemini-flash-lite-latest",
   "gemini-flash-latest",
-  "gemini-2.5-flash",
 ].filter(Boolean);
 let cachedModel = null; // remembered while the function instance stays warm
 
@@ -168,7 +169,7 @@ export default async (req) => {
     if (remaining < 3000) break;
     const model = queue.shift();
     const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), Math.min(remaining, 18000));
+    const timer = setTimeout(() => ctrl.abort(), Math.min(remaining, 20000));
     try {
       const r = await callModel(model, ctrl.signal);
       if (r.ok) {
