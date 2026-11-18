@@ -2,9 +2,31 @@
 // Calls Google Gemini with the user's event details and returns a generated plan.
 // The API key lives only on the server (Netlify env var GEMINI_API_KEY).
 
-const MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
-const ENDPOINT = (key) =>
-  `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${key}`;
+const BASE = "https://generativelanguage.googleapis.com/v1beta";
+// Preferred models, newest first. GEMINI_MODEL (env var) overrides all of them.
+const PREFERRED = [
+  process.env.GEMINI_MODEL,
+  "gemini-3.7-flash",
+  "gemini-3.6-flash",
+  "gemini-3.5-flash",
+  "gemini-flash-latest",
+  "gemini-2.5-flash",
+].filter(Boolean);
+let cachedModel = null; // remembered while the function instance stays warm
+
+// Ask the API which models this key can use, and pick the best Flash model available.
+async function discoverModel(key) {
+  const r = await fetch(`${BASE}/models?pageSize=200`, { headers: { "x-goog-api-key": key } });
+  if (!r.ok) return null;
+  const { models = [] } = await r.json();
+  const usable = models
+    .filter((m) => (m.supportedGenerationMethods || []).includes("generateContent"))
+    .map((m) => m.name.replace(/^models\//, ""));
+  for (const p of PREFERRED) if (usable.includes(p)) return p;
+  return usable.find((n) => /flash/.test(n) && !/(lite|live|image|tts|audio|preview|exp)/.test(n))
+      || usable.find((n) => /flash/.test(n))
+      || usable[0] || null;
+}
 
 const json = (status, body) =>
   new Response(JSON.stringify(body), {
@@ -124,20 +146,31 @@ export default async (req) => {
     },
   };
 
-  try {
-    const r = await fetch(ENDPOINT(key), {
+  const callModel = (model) =>
+    fetch(`${BASE}/models/${model}:generateContent`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", "x-goog-api-key": key },
       body: JSON.stringify(payload),
     });
-    if (!r.ok) {
-      console.error("Gemini error", r.status, await r.text());
-      return json(502, { error: `AI service error (${r.status}). Please try again.` });
+
+  try {
+    let model = cachedModel || PREFERRED[0];
+    let r = await callModel(model);
+    if (r.status === 404) {
+      // Model name not available for this key (renamed or retired): find one that is.
+      const found = await discoverModel(key);
+      if (found && found !== model) { model = found; r = await callModel(model); }
     }
+    if (!r.ok) {
+      const detail = await r.text();
+      console.error("Gemini error", model, r.status, detail);
+      return json(502, { error: `AI service error (${r.status}) using ${model}. Please try again.` });
+    }
+    cachedModel = model;
     const data = await r.json();
     const text = data?.candidates?.[0]?.content?.parts?.map((p) => p.text).join("") || "";
     const result = JSON.parse(text);
-    return json(200, { mode, model: MODEL, generatedAt: new Date().toISOString(), result });
+    return json(200, { mode, model, generatedAt: new Date().toISOString(), result });
   } catch (err) {
     console.error(err);
     return json(502, { error: "Could not generate a plan right now. Please try again." });
