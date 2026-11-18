@@ -7,9 +7,10 @@
 [![Accessibility](https://img.shields.io/badge/Accessibility-WCAG%202.1%20AA%2FAAA-green?style=for-the-badge&logo=w3c&logoColor=white)](https://github.com/Anu5156/EventVerse_AI_V4)
 [![Bundle Footprint](https://img.shields.io/badge/Bundle%20Footprint-%3C%2050%20KB%20(Native)-00b0ff?style=for-the-badge&logo=webassembly&logoColor=white)](https://github.com/Anu5156/EventVerse_AI_V4)
 [![Cold Boot Latency](https://img.shields.io/badge/Cold%20Boot%20TTI-%3C%2080ms-7c4dff?style=for-the-badge&logo=speedtest&logoColor=white)](https://dashing-biscotti-fe808f.netlify.app/)
-[![Privacy & Security](https://img.shields.io/badge/Security-Air--Gapped%20%7C%20Zero--Dependency-ff1744?style=for-the-badge&logo=shield&logoColor=white)](https://github.com/Anu5156/EventVerse_AI_V4)
+[![Generative AI](https://img.shields.io/badge/Generative%20AI-Google%20Gemini-4285F4?style=for-the-badge&logo=googlegemini&logoColor=white)](https://dashing-biscotti-fe808f.netlify.app/)
+[![Privacy & Security](https://img.shields.io/badge/Security-Server--Side%20API%20Key%20%7C%20Zero--Dependency-ff1744?style=for-the-badge&logo=shield&logoColor=white)](https://github.com/Anu5156/EventVerse_AI_V4)
 
-> **EventVerse AI V4** is a zero-dependency, local-first event orchestration command center engineered for high-stakes celebrations (Weddings, Milestone Celebrations, Corporate Galas, and Community Gatherings). It bridges unstructured creative vision and deterministic execution through algorithmic budget allocation, live run-of-show tracking, guest RSVP intelligence, vendor procurement matrices, and real-time **Chaos Mode™** crisis mitigation.
+> **EventVerse AI V4** is a zero-dependency, AI-powered event orchestration command center engineered for high-stakes celebrations (Weddings, Milestone Celebrations, Corporate Galas, and Community Gatherings). It turns the user's own vision, city, budget and guest count into a **live Google Gemini–generated blueprint** — city-specific concept, budget split, timeline, checklist and feasibility score — and pairs it with live run-of-show tracking, guest RSVP intelligence, vendor procurement matrices, and AI-generated **Chaos Mode™** crisis playbooks.
 >
 > 🌐 **Live Production App**: **[https://dashing-biscotti-fe808f.netlify.app/](https://dashing-biscotti-fe808f.netlify.app/)**
 
@@ -58,7 +59,7 @@ Event operations are historically plagued by four critical points of failure:
 
 ## 2. Approach and Logic
 
-EventVerse AI V4 adopts a **deterministic, local-first systems architecture** designed to guarantee 100% operational reliability regardless of connectivity conditions.
+EventVerse AI V4 combines a **lightweight local-first dashboard** with **live generative AI**. Every blueprint and crisis playbook is generated on demand by Google Gemini from the user's own inputs — nothing is pre-written or hard-coded — while tracking data (tasks, guests, vendors, expenses) stays in the browser.
 
 ### Architectural Principles
 
@@ -66,9 +67,11 @@ EventVerse AI V4 adopts a **deterministic, local-first systems architecture** de
 | :--- | :--- | :--- |
 | **Zero-Dependency Native Stack** | Pure ES6+ & Vanilla CSS3 | Eliminates the ~2 MB bundle bloat and supply chain risks of SPA frameworks. Ensures sub-80ms cold boot and perpetual compatibility. |
 | **Reactive State Machine (SSOT)** | Unidirectional reactive state loop | A centralized state store acts as the single source of truth. All user actions trigger pure-function reducers that synchronise the DOM atomically. |
-| **Air-Gapped Data Sovereignty** | Native `localStorage` + File API | Zero remote telemetry or third-party cloud locks. Attendee identities and financial data remain 100% on the client device. |
-| **BudgetGuard™ Algorithmic Allocation** | Proportional coefficient distribution ($C_k$) | Replaces arbitrary budget guesses with a domain-tested capital allocation formula that mathematically ring-fences a 10% safety cushion. |
-| **Chaos Mode™ Incident Mitigation** | Automated 15-min & 60-min triage state machine | Provides immediate operational decision trees, isolates emergency liquidity, and stabilizes event operations during high-severity vendor cancellations. |
+| **Generative AI Planning Engine** | Google Gemini via a Netlify Function (`/api/plan`) | The user's event type, city, budget, guests and vision are sent to Gemini with a structured JSON schema, so every plan is unique to that event and city. |
+| **Server-Side Secret Handling** | `GEMINI_API_KEY` stored as a Netlify secret env var | The API key never reaches the browser; the function validates input, calls Gemini, and falls back to another Gemini model if one is busy. |
+| **Local-First Tracking Data** | Native `localStorage` + File API | Guest lists, vendor quotes and expenses stay on the client device. Only the event details needed for planning are sent to the AI. |
+| **BudgetGuard™ Allocation** | AI-generated split, normalised to 100% | Starts from a 40/25/15/10/10 baseline, then replaces it with Gemini's split sized for the city and budget per guest; rupee amounts are computed locally and always sum to the exact budget. |
+| **Chaos Mode™ Incident Mitigation** | AI-generated 15-min & 60-min triage playbook | Gemini picks a realistic crisis for this event and city (e.g. monsoon flooding, vendor cancellation) and writes a playbook using the user's real budget, expenses and vendors. |
 | **Defensive Input Boundary** | Deterministic HTML entity encoder (`safe()`) | Protects against DOM-based Cross-Site Scripting (XSS) at every user input interface without third-party sanitization libraries. |
 
 ---
@@ -89,10 +92,17 @@ EventVerse AI V4 operates as an integrated four-stage operational pipeline:
 - Input listeners normalize number formats in real time and update reactive UI metrics synchronously.
 
 ### Stage 2: AI Blueprint Generation & Feasibility Scoring
-- Clicking **"Generate event blueprint"** invokes the constraint validation engine:
-  - Validates budget bounds ($B \ge 1,000$), guest integrity ($G \ge 1$), and non-empty city criteria.
-  - Synthesizes a structured operational blueprint: **Assumptions**, **Core Concept**, **Budget Allocations**, **Phased Milestone Timeline**, **Vendor Checklists**, and **Risk Guardrails**.
-  - Computes a deterministic plan confidence score (92%) and shifts command center status to `BLUEPRINT READY`.
+- Clicking **"Generate event blueprint"** runs this pipeline:
+  - Validates budget bounds ($B \ge 1,000$), guest integrity ($G \ge 1$), and non-empty city criteria in the browser.
+  - Sends the event details to the serverless function `/api/plan`, which validates them again and prompts **Google Gemini** with a strict JSON response schema.
+  - Gemini returns a plan specific to that city and event: **Assumptions**, **Core Concept**, **Budget Allocation**, **Local Tips for the city**, **Phased Timeline**, **Vendor Checklist**, **Risk Guardrails**, **Checklist Tasks**, and a **Feasibility Confidence Score (0–100) with a reason**.
+  - The dashboard updates the BudgetGuard split, the run-of-show tasks and the confidence meter from the AI output, shows which Gemini model generated the plan and when, and sets status to `AI BLUEPRINT READY`.
+  - If the AI is unavailable, the user sees a clear error — the app never shows pre-written or placeholder plans.
+
+| Same inputs, different city | Mumbai (Wedding, 300 guests, ₹8 lakh) | Nainital (Wedding, 300 guests, ₹8 lakh) |
+| :--- | :--- | :--- |
+| Local tips (example output) | Local-train and traffic planning, Dadar flower market, police noise rules after 10 PM | Shuttles from Kathgodam station, tourist-season bookings, backup halls for hill showers |
+| Confidence (example output) | ~40% — budget very tight for Mumbai | ~35% — budget very tight for a hill station |
 
 ### Stage 3: Operational Command Center Execution
 The user orchestrates day-to-day operations through six specialized modules:
@@ -103,10 +113,11 @@ The user orchestrates day-to-day operations through six specialized modules:
 5. **Zero-Leak Financial Ledger**: Reconciles forward commitments (`Planned`) against settled disbursements (`Paid`). Computes net remaining liquidity ($L_{\text{rem}}$) and dynamically triggers `.over-budget` alert styling if liabilities exceed the budget cap.
 
 ### Stage 4: Chaos Mode™ Contingency & Data Portability
-- **Simulate Crisis (Chaos Mode™)**: Simulates a catastrophic primary vendor cancellation. The engine isolates current commitments, quarantines the protected 10% reserve, and renders a structured triage playbook:
-  - *First 15 Minutes*: Written confirmation, event lead assignment, legal/remedy check, crowd safety lockdown.
-  - *Next Hour*: Pre-vetted substitution routing, venue coordinator network mobilization, quote verification.
-  - *Financial Guard*: Enforces reserve lockdown to absorb surge pricing without exceeding the global cap.
+- **Simulate Crisis (Chaos Mode™)**: Gemini picks a realistic crisis for this specific event and city (for example pre-monsoon waterlogging in Mumbai or a key vendor cancelling) and generates a structured triage playbook using the user's real budget, tracked expenses and vendor list:
+  - *Scenario*: The crisis the AI selected for this event.
+  - *First 15 Minutes* and *Next Hour*: Immediate containment and re-sourcing steps.
+  - *Budget Guard*: Uses the protected 10% reserve and current tracked spend in real rupee figures.
+  - *Communication* and *Verify*: Who tells guests and vendors what, and what must be confirmed before paying.
 - **Zero-Lock-In Portability**:
   - One-click browser save with `localStorage` persistence.
   - Machine-readable ISO-timestamped full plan backup (`.json`).
@@ -118,9 +129,9 @@ The user orchestrates day-to-day operations through six specialized modules:
 
 In designing EventVerse AI V4, the following explicit engineering and domain assumptions were established:
 
-1. **Client-Side Data Sovereignty & Zero Cloud Dependency**:
-   - *Assumption*: Event organizers prioritize complete attendee privacy and require absolute reliability in network-constrained venues.
-   - *Implementation*: No external backend, database, or analytics tracking is used. All state is persisted in client `localStorage` with explicit user-initiated JSON/CSV export capabilities.
+1. **AI for Planning, Local Storage for Records**:
+   - *Assumption*: Organizers want genuinely personalised plans, but guest lists and finances should stay private.
+   - *Implementation*: Only event details needed for planning (type, city, budget, guests, vision, tracked spend and vendor names/status for Chaos Mode) are sent to Gemini through the `/api/plan` function. Guest names, contacts and the full ledger stay in client `localStorage`, with user-initiated JSON/CSV export. There is no database or analytics tracking.
 
 2. **Currency Standardization & Regional Calibration**:
    - *Assumption*: Base currency defaults to Indian Rupee (`₹`, `INR`) using standard `en-IN` numeric formatting (lakhs/crores), matching high-density celebration markets.
@@ -134,9 +145,13 @@ In designing EventVerse AI V4, the following explicit engineering and domain ass
    - *Assumption*: High-stakes single-event operational state (hundreds of guests, dozens of vendors, itemized expenses, and tasks) occupies $< 500\text{ KB}$ of serialized JSON.
    - *Implementation*: Easily fits within standard browser `localStorage` quotas (typically 5–10 MB). Operations are wrapped in defensive `try/catch` blocks to gracefully degrade if storage is restricted.
 
-5. **Linear Proportional Capital Distribution**:
-   - *Assumption*: Across major celebrations, expenditure naturally clusters around five core operational buckets, with Food & Beverage and Venue accounting for the majority of guest satisfaction and structural cost.
-   - *Implementation*: BudgetGuard applies the 40/25/15/10/10 ratio as an optimal baseline that users can fine-tune through the itemized expense ledger.
+5. **Baseline Split, Then AI-Calibrated**:
+   - *Assumption*: Expenditure usually clusters around a few core buckets, but the right split depends on the city and budget per guest.
+   - *Implementation*: BudgetGuard shows the 40/25/15/10/10 baseline before a plan exists, then switches to Gemini's split for that city and budget, normalised to exactly 100%.
+
+6. **AI Output Is Guidance, Not a Booking**:
+   - *Assumption*: AI-generated prices and tips are estimates.
+   - *Implementation*: The prompt forbids invented vendor names, phone numbers and exact prices; the UI reminds users to confirm quotes, availability and terms directly.
 
 ---
 
@@ -148,9 +163,10 @@ EventVerse AI V4 has been engineered to strictly satisfy and exceed all official
 - **Peak Maintainability Index**: Fully audited to achieve a **Halstead Maintainability Index** (Peak Tier, Zero Technical Debt), with minimal vocabulary burden and optimal statement length.
 - **Ultra-Low Cyclomatic Complexity**: Cyclomatic complexity is held to $\le 2$ across all core computational routines, eliminating deeply nested branches, callback pyramids, and convoluted control flow.
 - **100% JSDoc 3.0 Strict Type Annotations & Data Contracts**: Every domain entity and subroutine is strictly annotated with exhaustive JSDoc 3.0 types (`@typedef Task`, `@typedef Guest`, `@typedef Vendor`, `@typedef Expense`, `@typedef Allocation`, `@typedef ReconciliationResult`, `@typedef CrisisData`, `@typedef AppState`, alongside `@param`, `@returns`, and `@throws`).
-- **Encapsulated Scope & Zero Global Pollution**: The entire runtime in [`app.js`](app.js) is enclosed in an Immediately Invoked Function Expression (IIFE) running under `"use strict"`. Exposes a clean Universal Module Definition (UMD/CommonJS) binding to `window.EventVerse` in browser runtimes and `module.exports` in Node.js test runners without polluting the global scope.
+- **Encapsulated Scope & Zero Global Pollution**: The entire client runtime in [`app.js`](app.js) is enclosed in an Immediately Invoked Function Expression (IIFE) running under `"use strict"`; the AI call lives separately in [`netlify/functions/plan.mjs`](netlify/functions/plan.mjs). Exposes a clean Universal Module Definition (UMD/CommonJS) binding to `window.EventVerse` in browser runtimes and `module.exports` in Node.js test runners without polluting the global scope.
 - **SOLID & Clean Architecture**: Strict adherence to the Single Responsibility Principle (SRP) and separation of concerns across four decoupled architectural layers:
-  - **Mathematical Computation Engine**: Pure deterministic functions (`calculateAllocations`, `calculateRemaining`, `safe`, `formatCsv`, `simulateCrisisData`, `money`, `uid`).
+  - **Mathematical Computation Engine**: Pure deterministic functions (`calculateAllocations`, `calculateRemaining`, `safe`, `formatCsv`, `simulateCrisisData`, `money`, `uid`, `normalizeAllocation`, `validateEvent`, `buildPlanRequest`).
+  - **AI Integration Layer**: `/api/plan` serverless function — prompt construction, Gemini structured output, model fallback and error handling.
   - **Reactive State Machine**: Single Source of Truth (`state`) managing state transitions atomically.
   - **Presentation View Controllers**: Pure DOM projection routines (`renderAllocations`, `renderTasks`, `renderGuests`, `renderVendors`, `renderExpenses`).
   - **Storage & Persistence**: Defensively isolated local-first persistence with storage-quota fallback boundaries.
@@ -175,7 +191,9 @@ EventVerse AI V4 has been engineered to strictly satisfy and exceed all official
     );
   ```
 - **Zero Dynamic Code Execution**: Zero usage of `eval()`, `new Function()`, or unverified innerHTML injection of raw user payloads.
-- **Air-Gapped Client Privacy**: 100% of event data, guest lists, and financial records stay strictly within the user's browser `localStorage`. Zero outbound network requests, tracking beacons, or third-party telemetry.
+- **Server-Side API Key**: The Gemini API key is stored as a secret Netlify environment variable and sent in the `x-goog-api-key` header from the server function — it is never exposed to the browser or committed to the repository.
+- **Double Input Validation**: Event details are validated in the browser and again in the function (length limits, numeric bounds) before any AI call.
+- **Minimal Data Sharing**: Only planning details are sent to Gemini; guest lists and the expense ledger stay in the browser's `localStorage`. No tracking beacons or third-party telemetry.
 - **Defensive Error Handling**: All storage operations are wrapped in defensive `try/catch` blocks to gracefully degrade in restricted or private browsing modes without throwing uncaught exceptions.
 
 ### 5.3 Efficiency & Resource Optimization
@@ -244,7 +262,9 @@ Test Summary       : 16 Passed | 0 Failed | 0 Skipped | Total Duration: ~0.21s
 | **Boundary Input Validation** | Enter negative budget or zero guests | Input rejected; alert notification displayed | ✅ Verified |
 | **Deficit State Trigger** | Total expenses exceed budget ceiling | Indicator dynamically adds `.over-budget` alert styling | ✅ Verified |
 | **Browser Persistence** | Reload browser window after editing | State fully restored from `localStorage` | ✅ Verified |
-| **Crisis Mitigation** | Click "Simulate a crisis" | Renders 15-min and 1-hour triage playbooks with locked reserve | ✅ Verified |
+| **AI Blueprint by City** | Generate for Mumbai, then Nainital, with the same budget | Two different, city-specific plans; model name and time shown | ✅ Verified |
+| **Crisis Mitigation** | Click "Simulate a crisis" | AI-generated scenario with 15-min and 1-hour triage steps using the real reserve | ✅ Verified |
+| **AI Unavailable** | AI service busy or key missing | Clear error shown; no placeholder plan displayed | ✅ Verified |
 | **Data Portability** | Export full JSON and CSV tables | Browser triggers instant file downloads with valid schemas | ✅ Verified |
 
 ---
@@ -272,10 +292,10 @@ EventVerse AI V4 maps directly to every dimension of the problem statement:
 
 | Evaluation Dimension | Stated Problem in Event Operations | EventVerse AI V4 Solution Architecture | Impact Verification |
 | :--- | :--- | :--- | :--- |
-| **Smart Dynamic Assistant** | Static templates fail to adjust to dynamic guest counts, budget caps, and city pricing | **Intelligent Blueprint Engine**: Synthesizes custom phased timelines, checklists, and confidence scores based on user constraints | 100% Algorithmic Satisfaction |
-| **Context-Aware Decisions** | Event planners guess spending allocations, resulting in mid-planning deficits | **BudgetGuard™ 40/25/15/10/10 Matrix**: Enforces domain-calibrated capital allocation with real-time over-budget deficit auditing | 100% Mathematical Proof |
-| **Crisis Resilience** | Supplier cancellations at T-24 hours cause catastrophic event collapse | **Chaos Mode™ Engine**: Generates 15-min containment & 60-min secondary sourcing runbooks while quarantining the 10% reserve | MTTR Reduced by >80% |
-| **Real-World Usability** | Tools require complex onboarding, database setups, or cloud subscriptions | **Zero-Dependency Native Architecture**: Deployed live on Netlify, runs offline, sub-80ms boot, zero configuration needed | 100% Frictionless Access |
+| **Smart Dynamic Assistant** | Static templates fail to adjust to dynamic guest counts, budget caps, and city pricing | **Gemini Blueprint Engine**: Generates a city-specific concept, budget split, timeline, checklist and confidence score from the user's own inputs on every request | Different city or budget → different plan |
+| **Context-Aware Decisions** | Event planners guess spending allocations, resulting in mid-planning deficits | **BudgetGuard™ AI Split**: Gemini sizes the split for the city and per-guest budget; amounts are computed locally with real-time over-budget auditing | Budget-per-head aware |
+| **Crisis Resilience** | Supplier cancellations at T-24 hours cause catastrophic event collapse | **Chaos Mode™ AI Playbook**: Gemini generates a realistic crisis for this event and city with 15-min and 60-min steps, using the real reserve and spend | Event- and city-specific |
+| **Real-World Usability** | Tools require complex onboarding, database setups, or cloud subscriptions | **Zero-Dependency Native Architecture**: Deployed live on Netlify, no sign-up or database; tracking works offline, AI planning needs a connection | Frictionless Access |
 | **Vertical Alignment** | Generic project management apps lack hospitality and event-specific domain logic | **Hospitality Cockpit**: Built specifically for weddings, birthdays, and community galas with guest RSVPs and quote trackers | 100% Domain-Calibrated |
 
 ---
@@ -300,12 +320,17 @@ flowchart TD
     end
 
     subgraph Engines ["Domain Computation Engines (Pure Functions)"]
-        BudgetGuard["BudgetGuard Allocation Engine (40/25/15/10/10)"]
+        BudgetGuard["BudgetGuard Allocation Engine (AI split, normalised to 100%)"]
         RunOfShow["Run-of-Show Milestone Engine"]
         RSVPEngine["RSVP Attendance Aggregator"]
         VendorEngine["Vendor Procurement Tracker"]
         Ledger["Expense Reconciliation & Deficit Auditor"]
         ChaosEngine["Chaos Mode Triage Matrix"]
+    end
+
+    subgraph AI ["Generative AI Layer (Netlify Function)"]
+        PlanFn["/api/plan — validate input, build prompt"]
+        Gemini[["Google Gemini (structured JSON output)"]]
     end
 
     subgraph Persistence ["Persistence & I/O Engine"]
@@ -316,6 +341,7 @@ flowchart TD
     Inputs --> Sanitizer --> CentralState
     Forms --> Sanitizer --> CentralState
     Actions --> Validator --> CentralState
+    Validator --> PlanFn --> Gemini --> PlanFn --> CentralState
 
     CentralState --> BudgetGuard --> UI
     CentralState --> RunOfShow --> UI
@@ -333,7 +359,7 @@ flowchart TD
 ## 7. Mathematical Budget Model & Algorithmic Complexity
 
 ### BudgetGuard™ Allocation Model
-The allocation model distributes the authorized capital ceiling $B_{\text{total}}$ using a fixed coefficient vector:
+Before a plan is generated, the allocation model distributes the authorized capital ceiling $B_{\text{total}}$ using this baseline coefficient vector. After generation, the coefficients come from Gemini's split for the chosen city and budget per guest (normalised so they sum to exactly 100%); the rupee amounts are always computed locally so they add up to the exact budget:
 
 $$\begin{bmatrix} 
 A_{\text{F\&B}} \\ 
@@ -375,7 +401,9 @@ Evaluated against the **OWASP Top 10** and the **STRIDE Threat Model**:
 | Threat Vector | STRIDE Classification | Mitigation Strategy Implemented in EventVerse AI V4 |
 | :--- | :--- | :--- |
 | **DOM-Based XSS** | Tampering | Deterministic entity escaping via `safe()` on all user inputs |
-| **Data Exfiltration** | Information Disclosure | 100% client-side execution; zero outbound telemetry or tracking SDKs |
+| **API Key Leakage** | Information Disclosure | Gemini key kept in a secret Netlify env var and used only server-side; never in client code or the repo |
+| **Data Exfiltration** | Information Disclosure | Only planning details go to Gemini; guest list and ledger stay in the browser; no telemetry or tracking SDKs |
+| **AI Service Outage** | Denial of Service | Function falls back across Gemini models with a time budget; on failure the UI shows an error, never fake output |
 | **Storage Quota Failure** | Denial of Service | `localStorage` calls wrapped in defensive `try/catch` fallbacks |
 | **State Corruption** | Elevation of Privilege | Strict schema normalization and type coercion before store commitment |
 | **Supply Chain Attack** | Tampering | Zero NPM runtime dependencies; 100% native ES6+ code |
@@ -387,6 +415,19 @@ Evaluated against the **OWASP Top 10** and the **STRIDE Threat Model**:
 ### 🌐 Live Production Deployment
 Directly access and use the live application without any local setup or installation:
 👉 **[https://dashing-biscotti-fe808f.netlify.app/](https://dashing-biscotti-fe808f.netlify.app/)**
+
+---
+
+### AI Setup (Google Gemini)
+1. Create a Gemini API key in [Google AI Studio](https://aistudio.google.com).
+2. In Netlify → **Site configuration → Environment variables**, add `GEMINI_API_KEY` and tick **Contains secret values**.
+3. Optional: set `GEMINI_MODEL` to force a specific Gemini model; otherwise the function picks an available Flash model automatically.
+4. Deploy with the Netlify CLI so the function is included:
+```bash
+netlify deploy --prod
+```
+
+> Opening `index.html` directly or with `python -m http.server` shows the dashboard, but AI generation needs the `/api/plan` function — use the live site or `netlify dev` locally.
 
 ---
 
@@ -410,6 +451,9 @@ Start-Process .\tests\test_suite.html
 
 ### Local Development Server Execution
 ```bash
+# With AI generation (runs the /api/plan function locally; needs GEMINI_API_KEY)
+netlify dev
+
 # Node / npm development workflow
 npm start
 
@@ -437,7 +481,11 @@ xdg-open ./index.html
 EventVerse_AI_V4/
 ├── index.html            # Semantic layout, WCAG 2.1 AAA landmarks, SEO meta tags
 ├── theme.css             # Design tokens, typography system, hardware-accelerated styling
-├── app.js                # State machine, reactive computation loops, 100% JSDoc-typed logic
+├── app.js                # State machine, rendering, AI requests to /api/plan, exported pure helpers
+├── netlify.toml          # Netlify publish + functions configuration
+├── netlify/
+│   └── functions/
+│       └── plan.mjs      # Serverless Gemini call: input validation, prompts, JSON schema, model fallback
 ├── package.json          # Project metadata, automated test scripts & dev server targets
 ├── .gitignore            # Git exclusion rules
 ├── tests/                # Automated Test Framework (100% Native Zero-Dependency)
