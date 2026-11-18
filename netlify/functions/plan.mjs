@@ -85,18 +85,21 @@ const crisisSchema = {
   required: ["scenario", "first15", "nextHour", "budgetGuard", "communication", "verify"],
 };
 
+// Spell the budget out clearly so the model can't misread the number of zeros.
+const inr = (n) => `INR ${Number(n).toLocaleString("en-IN")} (₹${(Number(n) / 100000).toLocaleString("en-IN", { maximumFractionDigits: 2 })} lakh)`;
+
 function blueprintPrompt(e) {
   return `You are an expert Indian event planner. Create a practical, specific plan for this event.
 
 EVENT TYPE: ${e.type}
 CITY: ${e.city}
 GUESTS: ${e.guests}
-TOTAL BUDGET: INR ${e.budget}
+TOTAL BUDGET: ${inr(e.budget)} — use exactly this amount
 USER'S VISION: ${e.vision || "(none given — propose a fitting concept)"}
 
 Rules:
 - Everything must be specific to ${e.city} and to a ${e.type.toLowerCase()} of ${e.guests} guests: local climate and best seasons, typical venue styles and areas in ${e.city}, local cuisine, traffic/transport, local permissions or noise rules, and cultural customs where relevant.
-- Budget allocation: 4–6 categories whose pct values sum to exactly 100, sized for this budget per guest (INR ${Math.round(e.budget / Math.max(e.guests, 1))} per head) in ${e.city}. Flag it in risks if the budget is unrealistic.
+- Budget allocation: 4–6 categories whose pct values sum to exactly 100, sized for this budget per guest (INR ${Math.round(e.budget / Math.max(e.guests, 1)).toLocaleString("en-IN")} per head) in ${e.city}. Flag it in risks if the budget is unrealistic.
 - Timeline: 5–7 bullet strings, earliest first.
 - localTips: 3–5 tips that only apply to ${e.city}.
 - tasks: 5–7 checklist items, "when" in short uppercase like "THIS WEEK" or "3 MONTHS".
@@ -107,12 +110,12 @@ Rules:
 function crisisPrompt(e) {
   return `You are an event crisis manager. Generate a recovery playbook for a realistic last-minute crisis for this event.
 
-EVENT: ${e.type} in ${e.city}, ${e.guests} guests, budget INR ${e.budget}
+EVENT: ${e.type} in ${e.city}, ${e.guests} guests, budget ${inr(e.budget)}
 VISION: ${e.vision || "(not given)"}
-TRACKED EXPENSES SO FAR: INR ${e.spent}
+TRACKED EXPENSES SO FAR: ${inr(e.spent)}
 VENDORS (name — category — status): ${e.vendors || "none tracked"}
 
-Pick one plausible crisis for this specific event and city (for example a key vendor cancelling, weather typical for ${e.city}, a venue power failure). Name it in "scenario". Keep each section to 2–3 sentences, specific to ${e.city} and this budget. In budgetGuard, use the real figures above (10% reserve = INR ${Math.round(e.budget * 0.1)}). Never invent vendor names or phone numbers.`;
+Pick one plausible crisis for this specific event and city (for example a key vendor cancelling, weather typical for ${e.city}, a venue power failure). Name it in "scenario". Keep each section to 2–3 sentences, specific to ${e.city} and this budget. In budgetGuard, use the real figures above (10% reserve = ${inr(Math.round(e.budget * 0.1))}). Never invent vendor names or phone numbers.`;
 }
 
 export default async (req) => {
